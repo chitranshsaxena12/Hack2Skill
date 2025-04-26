@@ -1,0 +1,291 @@
+<!--&lt;!&ndash; index.html (place in your Flask app’s templates/ folder) &ndash;&gt;-->
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--  <meta charset="UTF-8" />-->
+<!--  <title>Avatar Chatbot</title>-->
+<!--  <style>-->
+<!--    #avatar {-->
+<!--      position: relative;-->
+<!--      width: 300px;-->
+<!--      height: 300px;-->
+<!--    }-->
+<!--    #avatar img {-->
+<!--      position: absolute;-->
+<!--      top: 0;-->
+<!--      left: 0;-->
+<!--      width: 100%;-->
+<!--      height: 100%;-->
+<!--      user-select: none;-->
+<!--      pointer-events: none;-->
+<!--    }-->
+<!--    #closed { z-index: 1; }-->
+<!--    #open   { z-index: 2; display: none; }-->
+<!--  </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--  <h1>Avatar Chatbot</h1>-->
+<!--  <div id="chat-log"></div>-->
+<!--  <button id="talk-btn">🎤 Talk</button>-->
+<!--  <div id="avatar">-->
+<!--    <img id="closed" src="/static/closed1.png" alt="mouth closed" />-->
+<!--    <img id="open"   src="/static/open1.png"   alt="mouth open" />-->
+<!--  </div>-->
+<!--  <audio id="audio" hidden></audio>-->
+
+<!--  <script>-->
+<!--    const talkBtn = document.getElementById("talk-btn");-->
+<!--    const chatLog = document.getElementById("chat-log");-->
+<!--    const audioEl = document.getElementById("audio");-->
+<!--    const closedImg = document.getElementById("closed");-->
+<!--    const openImg   = document.getElementById("open");-->
+
+<!--    // -&#45;&#45; SpeechRecognition for STT -&#45;&#45;-->
+<!--    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();-->
+<!--    recognition.lang = 'en-US';-->
+<!--    recognition.interimResults = false;-->
+<!--    recognition.maxAlternatives = 1;-->
+
+<!--    recognition.onresult = async (e) => {-->
+<!--      const userText = e.results[0][0].transcript;-->
+<!--      chatLog.innerHTML += `<p><strong>You:</strong> ${userText}</p>`;-->
+<!--      // send to /chat-->
+<!--      const resp = await fetch("/chat", {-->
+<!--        method: "POST",-->
+<!--        headers: { "Content-Type": "application/json" },-->
+<!--        body: JSON.stringify({ text: userText })-->
+<!--      });-->
+<!--      const { reply } = await resp.json();-->
+<!--      chatLog.innerHTML += `<p><strong>Bot:</strong> ${reply}</p>`;-->
+
+<!--      // fetch TTS audio-->
+<!--      const ttsResp = await fetch("/tts", {-->
+<!--        method: "POST",-->
+<!--        headers: { "Content-Type": "application/json" },-->
+<!--        body: JSON.stringify({ text: reply })-->
+<!--      });-->
+<!--      const blob = await ttsResp.blob();-->
+<!--      const url  = URL.createObjectURL(blob);-->
+<!--      audioEl.src = url;-->
+<!--      await audioEl.play();-->
+<!--    };-->
+
+<!--    recognition.onerror = (e) => {-->
+<!--      console.error("Speech recognition error", e);-->
+<!--    };-->
+
+<!--    talkBtn.onclick = () => recognition.start();-->
+
+<!--    // -&#45;&#45; Web Audio API for lip‑sync -&#45;&#45;-->
+<!--    const audioCtx  = new AudioContext();-->
+<!--    const source    = audioCtx.createMediaElementSource(audioEl);-->
+<!--    const analyser  = audioCtx.createAnalyser();-->
+<!--    source.connect(analyser);-->
+<!--    analyser.connect(audioCtx.destination);-->
+
+<!--    function animate() {-->
+<!--      const data = new Uint8Array(analyser.frequencyBinCount);-->
+<!--      analyser.getByteTimeDomainData(data);-->
+<!--      // compute rough “volume”-->
+<!--      let sum = 0;-->
+<!--      for (let v of data) sum += Math.abs(v - 128);-->
+<!--      const volume = sum / data.length;-->
+<!--      if (volume > 10) {-->
+<!--        openImg.style.display = 'block';-->
+<!--        closedImg.style.display = 'none';-->
+<!--      } else {-->
+<!--        openImg.style.display = 'none';-->
+<!--        closedImg.style.display = 'block';-->
+<!--      }-->
+<!--      if (!audioEl.paused) {-->
+<!--        requestAnimationFrame(animate);-->
+<!--      } else {-->
+<!--        // ensure closed at end-->
+<!--        openImg.style.display = 'none';-->
+<!--        closedImg.style.display = 'block';-->
+<!--      }-->
+<!--    }-->
+
+<!--    audioEl.onplay = () => {-->
+<!--      audioCtx.resume();-->
+<!--      requestAnimationFrame(animate);-->
+<!--    };-->
+<!--  </script>-->
+<!--</body>-->
+<!--</html>-->
+
+
+
+<!-- index.html (place in your Flask app's templates/ folder) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Avatar Chatbot</title>
+  <style>
+    #avatar {
+      position: relative;
+      width: 300px;
+      height: 300px;
+    }
+    #avatar img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      user-select: none;
+      pointer-events: none;
+    }
+    #closed { z-index: 1; }
+    #open   { z-index: 2; display: none; }
+
+    #language-select {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Avatar Chatbot</h1>
+  <div id="chat-log"></div>
+  <div id="language-select">
+    <label for="lang-selector">Language:</label>
+    <select id="lang-selector">
+      <option value="en-US">English</option>
+      <option value="hi-IN">Hindi</option>
+      <option value="ta-IN">Tamil</option>
+      <option value="te-IN">Telugu</option>
+      <option value="ml-IN">Malayalam</option>
+      <option value="kn-IN">Kannada</option>
+      <option value="mr-IN">Marathi</option>
+      <option value="gu-IN">Gujarati</option>
+      <option value="bn-IN">Bengali</option>
+      <option value="pa-IN">Punjabi</option>
+      <option value="ur-IN">Urdu</option>
+    </select>
+  </div>
+  <button id="talk-btn">🎤 Talk</button>
+  <div id="avatar">
+    <img id="closed" src="/static/closed1.png" alt="mouth closed" />
+    <img id="open"   src="/static/open1.png"   alt="mouth open" />
+  </div>
+  <audio id="audio" hidden></audio>
+
+  <script>
+    const talkBtn = document.getElementById("talk-btn");
+    const chatLog = document.getElementById("chat-log");
+    const audioEl = document.getElementById("audio");
+    const closedImg = document.getElementById("closed");
+    const openImg   = document.getElementById("open");
+    const langSelector = document.getElementById("lang-selector");
+
+    // Map of language codes to voice names for TTS
+    const languageVoiceMap = {
+      "en": "en-US-JennyNeural", // Default English voice
+      "hi": "hi-IN-SwaraNeural",  // Hindi
+      "ta": "ta-IN-PallaviNeural", // Tamil
+      "te": "te-IN-MohanNeural",   // Telugu
+      "ml": "ml-IN-SobhanaNeural", // Malayalam
+      "kn": "kn-IN-GaganNeural",   // Kannada
+      "mr": "mr-IN-AarohiNeural",  // Marathi
+      "gu": "gu-IN-DhwaniNeural",  // Gujarati
+      "bn": "bn-IN-TanishaaNeural", // Bengali
+      "pa": "pa-IN-JasleenNeural", // Punjabi
+      "ur": "ur-IN-AsadNeural"     // Urdu
+    };
+
+    // --- SpeechRecognition for STT ---
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    // Update recognition language when user changes the dropdown
+    langSelector.onchange = () => {
+      recognition.lang = langSelector.value;
+    };
+
+    // Set initial language
+    recognition.lang = langSelector.value;
+
+    // Helper function to get language code (en, hi) from full locale (en-US, hi-IN)
+    function getLanguageCode(locale) {
+      return locale.split('-')[0];
+    }
+
+    recognition.onresult = async (e) => {
+      const userText = e.results[0][0].transcript;
+      const langCode = getLanguageCode(recognition.lang);
+
+      chatLog.innerHTML += `<p><strong>You:</strong> ${userText}</p>`;
+
+      // Send text and language code to backend
+      const resp = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: userText,
+          lang: langCode
+        })
+      });
+      const { reply } = await resp.json();
+      chatLog.innerHTML += `<p><strong>Bot:</strong> ${reply}</p>`;
+
+      // fetch TTS audio with language code and voice
+      const ttsResp = await fetch("/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: reply,
+          lang: langCode,
+          voice: languageVoiceMap[langCode] || "en-US-JennyNeural"
+        })
+      });
+      const blob = await ttsResp.blob();
+      const url  = URL.createObjectURL(blob);
+      audioEl.src = url;
+      await audioEl.play();
+    };
+
+    recognition.onerror = (e) => {
+      console.error("Speech recognition error", e);
+    };
+
+    talkBtn.onclick = () => recognition.start();
+
+    // --- Web Audio API for lip‑sync ---
+    const audioCtx  = new AudioContext();
+    const source    = audioCtx.createMediaElementSource(audioEl);
+    const analyser  = audioCtx.createAnalyser();
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    function animate() {
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteTimeDomainData(data);
+      // compute rough "volume"
+      let sum = 0;
+      for (let v of data) sum += Math.abs(v - 128);
+      const volume = sum / data.length;
+      if (volume > 10) {
+        openImg.style.display = 'block';
+        closedImg.style.display = 'none';
+      } else {
+        openImg.style.display = 'none';
+        closedImg.style.display = 'block';
+      }
+      if (!audioEl.paused) {
+        requestAnimationFrame(animate);
+      } else {
+        // ensure closed at end
+        openImg.style.display = 'none';
+        closedImg.style.display = 'block';
+      }
+    }
+
+    audioEl.onplay = () => {
+      audioCtx.resume();
+      requestAnimationFrame(animate);
+    };
+  </script>
+</body>
+</html>

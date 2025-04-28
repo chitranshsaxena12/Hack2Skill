@@ -1,4 +1,4 @@
-<!--&lt;!&ndash; index.html (place in your Flask app’s templates/ folder) &ndash;&gt;-->
+<!--&lt;!&ndash; index.html (place in your Flask app's templates/ folder) &ndash;&gt;-->
 <!--<!DOCTYPE html>-->
 <!--<html lang="en">-->
 <!--<head>-->
@@ -21,11 +21,31 @@
 <!--    }-->
 <!--    #closed { z-index: 1; }-->
 <!--    #open   { z-index: 2; display: none; }-->
+
+<!--    #language-select {-->
+<!--      margin: 10px 0;-->
+<!--    }-->
 <!--  </style>-->
 <!--</head>-->
 <!--<body>-->
 <!--  <h1>Avatar Chatbot</h1>-->
 <!--  <div id="chat-log"></div>-->
+<!--  <div id="language-select">-->
+<!--    <label for="lang-selector">Language:</label>-->
+<!--    <select id="lang-selector">-->
+<!--      <option value="en-US">English</option>-->
+<!--      <option value="hi-IN">Hindi</option>-->
+<!--      <option value="ta-IN">Tamil</option>-->
+<!--      <option value="te-IN">Telugu</option>-->
+<!--      <option value="ml-IN">Malayalam</option>-->
+<!--      <option value="kn-IN">Kannada</option>-->
+<!--      <option value="mr-IN">Marathi</option>-->
+<!--      <option value="gu-IN">Gujarati</option>-->
+<!--      <option value="bn-IN">Bengali</option>-->
+<!--      <option value="pa-IN">Punjabi</option>-->
+<!--      <option value="ur-IN">Urdu</option>-->
+<!--    </select>-->
+<!--  </div>-->
 <!--  <button id="talk-btn">🎤 Talk</button>-->
 <!--  <div id="avatar">-->
 <!--    <img id="closed" src="/static/closed1.png" alt="mouth closed" />-->
@@ -39,30 +59,68 @@
 <!--    const audioEl = document.getElementById("audio");-->
 <!--    const closedImg = document.getElementById("closed");-->
 <!--    const openImg   = document.getElementById("open");-->
+<!--    const langSelector = document.getElementById("lang-selector");-->
+
+<!--    // Map of language codes to voice names for TTS-->
+<!--    const languageVoiceMap = {-->
+<!--      "en": "en-US-JennyNeural", // Default English voice-->
+<!--      "hi": "hi-IN-SwaraNeural",  // Hindi-->
+<!--      "ta": "ta-IN-PallaviNeural", // Tamil-->
+<!--      "te": "te-IN-MohanNeural",   // Telugu-->
+<!--      "ml": "ml-IN-SobhanaNeural", // Malayalam-->
+<!--      "kn": "kn-IN-GaganNeural",   // Kannada-->
+<!--      "mr": "mr-IN-AarohiNeural",  // Marathi-->
+<!--      "gu": "gu-IN-DhwaniNeural",  // Gujarati-->
+<!--      "bn": "bn-IN-TanishaaNeural", // Bengali-->
+<!--      "pa": "pa-IN-JasleenNeural", // Punjabi-->
+<!--      "ur": "ur-IN-AsadNeural"     // Urdu-->
+<!--    };-->
 
 <!--    // -&#45;&#45; SpeechRecognition for STT -&#45;&#45;-->
 <!--    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();-->
-<!--    recognition.lang = 'en-US';-->
 <!--    recognition.interimResults = false;-->
 <!--    recognition.maxAlternatives = 1;-->
 
+<!--    // Update recognition language when user changes the dropdown-->
+<!--    langSelector.onchange = () => {-->
+<!--      recognition.lang = langSelector.value;-->
+<!--    };-->
+
+<!--    // Set initial language-->
+<!--    recognition.lang = langSelector.value;-->
+
+<!--    // Helper function to get language code (en, hi) from full locale (en-US, hi-IN)-->
+<!--    function getLanguageCode(locale) {-->
+<!--      return locale.split('-')[0];-->
+<!--    }-->
+
 <!--    recognition.onresult = async (e) => {-->
 <!--      const userText = e.results[0][0].transcript;-->
+<!--      const langCode = getLanguageCode(recognition.lang);-->
+
 <!--      chatLog.innerHTML += `<p><strong>You:</strong> ${userText}</p>`;-->
-<!--      // send to /chat-->
+
+<!--      // Send text and language code to backend-->
 <!--      const resp = await fetch("/chat", {-->
 <!--        method: "POST",-->
 <!--        headers: { "Content-Type": "application/json" },-->
-<!--        body: JSON.stringify({ text: userText })-->
+<!--        body: JSON.stringify({-->
+<!--          text: userText,-->
+<!--          lang: langCode-->
+<!--        })-->
 <!--      });-->
 <!--      const { reply } = await resp.json();-->
 <!--      chatLog.innerHTML += `<p><strong>Bot:</strong> ${reply}</p>`;-->
 
-<!--      // fetch TTS audio-->
+<!--      // fetch TTS audio with language code and voice-->
 <!--      const ttsResp = await fetch("/tts", {-->
 <!--        method: "POST",-->
 <!--        headers: { "Content-Type": "application/json" },-->
-<!--        body: JSON.stringify({ text: reply })-->
+<!--        body: JSON.stringify({-->
+<!--          text: reply,-->
+<!--          lang: langCode,-->
+<!--          voice: languageVoiceMap[langCode] || "en-US-JennyNeural"-->
+<!--        })-->
 <!--      });-->
 <!--      const blob = await ttsResp.blob();-->
 <!--      const url  = URL.createObjectURL(blob);-->
@@ -86,7 +144,7 @@
 <!--    function animate() {-->
 <!--      const data = new Uint8Array(analyser.frequencyBinCount);-->
 <!--      analyser.getByteTimeDomainData(data);-->
-<!--      // compute rough “volume”-->
+<!--      // compute rough "volume"-->
 <!--      let sum = 0;-->
 <!--      for (let v of data) sum += Math.abs(v - 128);-->
 <!--      const volume = sum / data.length;-->
@@ -116,176 +174,145 @@
 
 
 
-<!-- index.html (place in your Flask app's templates/ folder) -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Avatar Chatbot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhatsApp‑Style Avatar Chatbot</title>
   <style>
-    #avatar {
-      position: relative;
-      width: 300px;
-      height: 300px;
-    }
-    #avatar img {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      user-select: none;
-      pointer-events: none;
-    }
-    #closed { z-index: 1; }
-    #open   { z-index: 2; display: none; }
-
-    #language-select {
-      margin: 10px 0;
-    }
+    body { margin: 0; font-family: Arial, sans-serif; background: #ECE5DD; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .chat-wrapper { width: 400px; height: 600px; background: #FFF; border-radius: 8px; display: flex; flex-direction: column; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
+    .header { background: #075E54; color: #FFF; padding: 12px; text-align: center; font-size: 18px; }
+    .modes { display: flex; justify-content: center; gap: 20px; padding: 10px; background: #F0F0F0; }
+    .modes label { cursor: pointer; font-size: 14px; }
+    #chat-log { flex: 1; padding: 10px; background: #ECE5DD; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .message { max-width: 75%; padding: 8px 12px; border-radius: 20px; line-height: 1.4; word-wrap: break-word; }
+    .message.user { background: #DCF8C6; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .message.bot  { background: #FFF;     align-self: flex-start; border-bottom-left-radius: 4px; }
+    .controls { padding: 10px; background: #F0F0F0; display: flex; align-items: center; gap: 8px; }
+    #text-input { flex: 1; padding: 6px; font-size: 14px; border: 1px solid #CCC; border-radius: 4px; }
+    #send-btn, #talk-btn { padding: 6px 12px; background: #25D366; border: none; border-radius: 4px; color: #FFF; font-size: 14px; cursor: pointer; }
+    #lang-selector { padding: 6px; font-size: 14px; border-radius: 4px; border: 1px solid #CCC; }
+    #avatar { display: none; position: relative; width: 100%; height: 300px; background: #000; }
+    #avatar img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; user-select: none; pointer-events: none; }
+    #avatar #closed { z-index: 1; }
+    #avatar #open   { z-index: 2; display: none; }
+    audio { display: none; }
   </style>
 </head>
 <body>
-  <h1>Avatar Chatbot</h1>
-  <div id="chat-log"></div>
-  <div id="language-select">
-    <label for="lang-selector">Language:</label>
-    <select id="lang-selector">
-      <option value="en-US">English</option>
-      <option value="hi-IN">Hindi</option>
-      <option value="ta-IN">Tamil</option>
-      <option value="te-IN">Telugu</option>
-      <option value="ml-IN">Malayalam</option>
-      <option value="kn-IN">Kannada</option>
-      <option value="mr-IN">Marathi</option>
-      <option value="gu-IN">Gujarati</option>
-      <option value="bn-IN">Bengali</option>
-      <option value="pa-IN">Punjabi</option>
-      <option value="ur-IN">Urdu</option>
-    </select>
+  <div class="chat-wrapper">
+    <div class="header">WhatsApp‑Style Avatar Chatbot</div>
+    <div class="modes">
+      <label><input type="radio" name="mode" value="chat" checked> Chat</label>
+      <label><input type="radio" name="mode" value="avatar"> Avatar</label>
+    </div>
+    <div id="chat-log"></div>
+    <div id="avatar">
+      <img id="closed" src="/static/closed1.png" alt="mouth closed" />
+      <img id="open"   src="/static/open1.png"   alt="mouth open" />
+    </div>
+    <div class="controls">
+      <input id="text-input" type="text" placeholder="Type a message..." />
+      <button id="send-btn">Send</button>
+      <button id="talk-btn">🎤</button>
+      <select id="lang-selector">
+        <option value="en-US">English</option>
+        <option value="hi-IN">Hindi</option>
+        <option value="ta-IN">Tamil</option>
+        <option value="te-IN">Telugu</option>
+        <option value="ml-IN">Malayalam</option>
+        <option value="kn-IN">Kannada</option>
+        <option value="mr-IN">Marathi</option>
+        <option value="gu-IN">Gujarati</option>
+        <option value="bn-IN">Bengali</option>
+        <option value="pa-IN">Punjabi</option>
+        <option value="ur-IN">Urdu</option>
+      </select>
+    </div>
   </div>
-  <button id="talk-btn">🎤 Talk</button>
-  <div id="avatar">
-    <img id="closed" src="/static/closed1.png" alt="mouth closed" />
-    <img id="open"   src="/static/open1.png"   alt="mouth open" />
-  </div>
-  <audio id="audio" hidden></audio>
-
+  <audio id="audio"></audio>
   <script>
-    const talkBtn = document.getElementById("talk-btn");
-    const chatLog = document.getElementById("chat-log");
-    const audioEl = document.getElementById("audio");
-    const closedImg = document.getElementById("closed");
-    const openImg   = document.getElementById("open");
+    const chatLog      = document.getElementById("chat-log");
+    const avatarDiv    = document.getElementById("avatar");
+    const textInput    = document.getElementById("text-input");
+    const sendBtn      = document.getElementById("send-btn");
+    const talkBtn      = document.getElementById("talk-btn");
     const langSelector = document.getElementById("lang-selector");
+    const audioEl      = document.getElementById("audio");
+    const closedImg    = document.getElementById("closed");
+    const openImg      = document.getElementById("open");
 
-    // Map of language codes to voice names for TTS
     const languageVoiceMap = {
-      "en": "en-US-JennyNeural", // Default English voice
-      "hi": "hi-IN-SwaraNeural",  // Hindi
-      "ta": "ta-IN-PallaviNeural", // Tamil
-      "te": "te-IN-MohanNeural",   // Telugu
-      "ml": "ml-IN-SobhanaNeural", // Malayalam
-      "kn": "kn-IN-GaganNeural",   // Kannada
-      "mr": "mr-IN-AarohiNeural",  // Marathi
-      "gu": "gu-IN-DhwaniNeural",  // Gujarati
-      "bn": "bn-IN-TanishaaNeural", // Bengali
-      "pa": "pa-IN-JasleenNeural", // Punjabi
-      "ur": "ur-IN-AsadNeural"     // Urdu
+      en: "en-US-JennyNeural", hi: "hi-IN-SwaraNeural", ta: "ta-IN-PallaviNeural",
+      te: "te-IN-MohanNeural", ml: "ml-IN-SobhanaNeural", kn: "kn-IN-GaganNeural",
+      mr: "mr-IN-AarohiNeural", gu: "gu-IN-DhwaniNeural", bn: "bn-IN-TanishaaNeural",
+      pa: "pa-IN-JasleenNeural", ur: "ur-IN-AsadNeural"
     };
 
-    // --- SpeechRecognition for STT ---
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    // Update recognition language when user changes the dropdown
-    langSelector.onchange = () => {
-      recognition.lang = langSelector.value;
-    };
-
-    // Set initial language
-    recognition.lang = langSelector.value;
-
-    // Helper function to get language code (en, hi) from full locale (en-US, hi-IN)
-    function getLanguageCode(locale) {
-      return locale.split('-')[0];
+    function getMode() { return document.querySelector('input[name="mode"]:checked').value; }
+    function updateVisibility() {
+      const mode = getMode();
+      chatLog.style.display   = mode === 'chat'   ? 'flex' : 'none';
+      avatarDiv.style.display = mode === 'avatar' ? 'block': 'none';
+      textInput.style.display = mode === 'chat'   ? 'block': 'none';
+      sendBtn.style.display   = mode === 'chat'   ? 'inline-block' : 'none';
+      talkBtn.style.display   = mode === 'avatar' ? 'inline-block' : 'none';
+      langSelector.style.display = 'inline-block';
     }
+    document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener('change', updateVisibility));
+    updateVisibility();
+
+    function getLanguageCode(locale) { return locale.split('-')[0]; }
+
+    // Chat mode
+    sendBtn.addEventListener('click', async () => {
+      const text = textInput.value.trim(); if (!text) return;
+      appendMessage(text, 'user'); textInput.value = '';
+      const lang = getLanguageCode(langSelector.value);
+      try {
+        const res = await fetch('/chat', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ text, lang }) });
+        const { reply } = await res.json();
+        appendMessage(reply, 'bot');
+      } catch (err) { console.error(err); appendMessage('Error contacting server.', 'bot'); }
+    });
+
+    // Avatar mode: use same /chat endpoint for reply
+    const recognition = new (window.SpeechRecognition||window.webkitSpeechRecognition)();
+    recognition.interimResults = false; recognition.maxAlternatives = 1; recognition.lang = langSelector.value;
+    langSelector.addEventListener('change', () => recognition.lang = langSelector.value);
 
     recognition.onresult = async (e) => {
-      const userText = e.results[0][0].transcript;
-      const langCode = getLanguageCode(recognition.lang);
-
-      chatLog.innerHTML += `<p><strong>You:</strong> ${userText}</p>`;
-
-      // Send text and language code to backend
-      const resp = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: userText,
-          lang: langCode
-        })
-      });
-      const { reply } = await resp.json();
-      chatLog.innerHTML += `<p><strong>Bot:</strong> ${reply}</p>`;
-
-      // fetch TTS audio with language code and voice
-      const ttsResp = await fetch("/tts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: reply,
-          lang: langCode,
-          voice: languageVoiceMap[langCode] || "en-US-JennyNeural"
-        })
-      });
-      const blob = await ttsResp.blob();
-      const url  = URL.createObjectURL(blob);
-      audioEl.src = url;
-      await audioEl.play();
-    };
-
-    recognition.onerror = (e) => {
-      console.error("Speech recognition error", e);
-    };
-
-    talkBtn.onclick = () => recognition.start();
-
-    // --- Web Audio API for lip‑sync ---
-    const audioCtx  = new AudioContext();
-    const source    = audioCtx.createMediaElementSource(audioEl);
-    const analyser  = audioCtx.createAnalyser();
-    source.connect(analyser);
-    analyser.connect(audioCtx.destination);
-
-    function animate() {
-      const data = new Uint8Array(analyser.frequencyBinCount);
-      analyser.getByteTimeDomainData(data);
-      // compute rough "volume"
-      let sum = 0;
-      for (let v of data) sum += Math.abs(v - 128);
-      const volume = sum / data.length;
-      if (volume > 10) {
-        openImg.style.display = 'block';
-        closedImg.style.display = 'none';
-      } else {
-        openImg.style.display = 'none';
-        closedImg.style.display = 'block';
+      if (getMode() !== 'avatar') return;
+      const spoken = e.results[0][0].transcript;
+      const lang = getLanguageCode(recognition.lang);
+      try {
+        // get text reply from /chat
+        const res = await fetch('/chat', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ text: spoken, lang }) });
+        const { reply } = await res.json();
+        // now TTS the reply
+        const ttsRes = await fetch('/tts', {
+          method: 'POST', headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({ text: reply, lang, voice: languageVoiceMap[lang] || languageVoiceMap.en })
+        });
+        const blob = await ttsRes.blob();
+        audioEl.src = URL.createObjectURL(blob);
+        await audioEl.play();
+      } catch (err) {
+        console.error('Avatar error', err);
       }
-      if (!audioEl.paused) {
-        requestAnimationFrame(animate);
-      } else {
-        // ensure closed at end
-        openImg.style.display = 'none';
-        closedImg.style.display = 'block';
-      }
-    }
-
-    audioEl.onplay = () => {
-      audioCtx.resume();
-      requestAnimationFrame(animate);
     };
+    recognition.onerror = e => console.error('STT error', e);
+    talkBtn.addEventListener('click', () => { if (getMode()==='avatar') recognition.start(); });
+
+    // Lip-sync animation
+    const audioCtx = new AudioContext(); const source = audioCtx.createMediaElementSource(audioEl); const analyser = audioCtx.createAnalyser(); source.connect(analyser); analyser.connect(audioCtx.destination);
+    function animate() { const data = new Uint8Array(analyser.frequencyBinCount); analyser.getByteTimeDomainData(data); let sum=0; for (let v of data) sum+=Math.abs(v-128); const vol = sum/data.length; if (vol>10) { openImg.style.display='block'; closedImg.style.display='none'; } else { openImg.style.display='none'; closedImg.style.display='block'; } if (!audioEl.paused) requestAnimationFrame(animate); else { openImg.style.display='none'; closedImg.style.display='block'; } }
+    audioEl.onplay = () => { audioCtx.resume(); requestAnimationFrame(animate); };
+
+    function appendMessage(text, who) { const p = document.createElement('div'); p.classList.add('message', who); p.textContent = text; chatLog.append(p); chatLog.scrollTop = chatLog.scrollHeight; }
   </script>
 </body>
 </html>

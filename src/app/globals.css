@@ -1,0 +1,204 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    padding: 0;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+    line-height: 1.6;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+
+body {
+    width: 100%;
+    height: 100vh;
+    background-color: #f3f3f3;
+}
+
+body,
+html {
+    overflow-x: hidden;
+}
+
+.mainmenu {
+    background-color: #e8e3eb;
+}
+
+
+.vchat {
+    margin-right: 2rem;
+    padding: 30px 20px;
+}
+
+.mmenu {
+    margin-right: 2rem;
+    padding: 30px 20px;
+}
+
+/* .mmenuback {
+    position: absolute;
+    top: 20;
+    right: 20;
+} */
+
+.nmenu {
+    padding: 30px 20px;
+}
+
+span {
+    font-size: 0.6rem;
+    /* Makes the question mark smaller */
+    color: #9CA3AF;
+    /* Keeps the gray color */
+    cursor: help;
+}
+
+/* Add custom tooltip styles */
+.cursor-help {
+  cursor: help;
+}
+
+.cursor-help:hover::after {
+  content: attr(title);
+  position: absolute;
+  background: #374151;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  z-index: 50;
+  max-width: 300px;
+  white-space: normal;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Add these new animation classes */
+.animate-fade {
+    transition: all 0.3s ease-in-out;
+}
+
+.vchat:hover,
+.mmenu:hover,
+.nmenu:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease-in-out;
+}
+
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+}
+
+.animate-pulse-ring {
+    animation: pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Ring beam animation styles */
+.ring-beam {
+  position: relative;
+}
+
+.ring-beam::before,
+.ring-beam::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  bottom: -8px;
+  left: -8px;
+  border: 4px solid rgba(59, 130, 246, 0.5);
+  border-radius: 50%;
+  animation: ring-expand 2s ease-out infinite;
+  z-index: 10;
+}
+
+.ring-beam::after {
+  animation-delay: 0.5s;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.taskbar {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(90deg, #cfc6d9, #e8e3eb); /* subtle gradient blend */
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    z-index: 20;
+  }
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #4b3f5d; /* dark contrasting text */
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+
+  .fllup{
+    margin-top: 3rem;
+  }
+
+
+  .strtspkn {
+    margin-top: 2rem;
+  }
+@keyframes ring-expand {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Pulse animation for avatar */
+.avatar-pulse {
+  animation: avatar-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes avatar-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+@media (min-width: 200px) and (max-width: 1023px) {}
+
+@media (max-width: 710px) {}
+
+@media (max-width: 600px) {}
+
+@media (max-width: 768px) {}

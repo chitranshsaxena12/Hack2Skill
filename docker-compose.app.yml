@@ -1,0 +1,7 @@
+version: "3"
+services:
+  openai-chatbot-app:
+    container_name: openai-chatbot-app
+    build:
+      context: "."
+      dockerfile: ./docker/Dockerfile

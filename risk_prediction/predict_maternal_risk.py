@@ -301,4 +301,4 @@ def predict_risk():
         return jsonify({'error': error_msg}), 500
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(port=3003, debug=True)

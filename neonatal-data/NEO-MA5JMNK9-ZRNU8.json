@@ -1,0 +1,22 @@
+{
+  "userId": "NEO-MA5JMNK9-ZRNU8",
+  "motherName": "Julia",
+  "motherAge": "40",
+  "contact": "8484",
+  "deliveryDate": "2025-05-30",
+  "gestationalAge": "21",
+  "birthWeight": "300",
+  "birthLength": "21",
+  "headCircumference": "21",
+  "apgarScore": "2",
+  "multipleBirth": false,
+  "birthComplications": false,
+  "requiresNICU": false,
+  "jaundice": false,
+  "respiratoryIssues": false,
+  "feedingIssues": false,
+  "congenitalAnomalies": false,
+  "maternalDiabetes": false,
+  "maternalHypertension": false,
+  "registrationDate": "2025-05-01T15:52:14.025Z"
+}

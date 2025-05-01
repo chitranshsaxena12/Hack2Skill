@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
         
         // Call the appropriate prediction endpoint
         const endpoint = isMaternalData ? 
-            'http://localhost:5000/predict-maternal-risk' :
+            'http://localhost:3003/predict-maternal-risk' :
             'http://localhost:3005/predict-neonatal-risk';
 
         const response = await fetch(endpoint, {

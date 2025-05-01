@@ -1,8 +1,8 @@
 {
   "weekNumber": 1,
-  "weightGain": 0,
-  "heightGain": 0,
-  "headCircumferenceGain": 0,
+  "weightGain": 3,
+  "heightGain": 3,
+  "headCircumferenceGain": 2.9,
   "temperature": 37,
   "respiratoryRate": 45,
   "heartRate": 140,
@@ -28,6 +28,6 @@
   "vitaminSupplements": true,
   "issues": [],
   "notes": "",
-  "submissionDate": "2025-05-01T14:36:19.549Z",
-  "userId": "NEO-MA58Z2YV-L7CF2"
+  "submissionDate": "2025-05-01T16:03:16.640Z",
+  "userId": "NEO-MA5JMNK9-ZRNU8"
 }

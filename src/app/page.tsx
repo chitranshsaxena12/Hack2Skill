@@ -50,7 +50,7 @@ const App: React.FC = () => {
           <h3 className="text-2xl font-bold mb-3">Hi there, Please select an option</h3>
           <div className="space-y-4">
             <button
-              onClick={() => handleMainSelection("voice-chat")}
+              onClick={() => window.location.href = 'https://ubiquitous-pancake-4jvw5gr7xx5jhqq4r-5000.app.github.dev/'}
               className="vchat animate-fade px-6 py-3 bg-blue-500 text-white rounded-xl shadow-md hover:bg-blue-600"
               title="Click to start voice chat with AI assistant"
             >
@@ -78,7 +78,7 @@ const App: React.FC = () => {
             Back
           </button>
           <h2 className="text-3xl font-semibold mb-8">Health Monitoring</h2>
-          
+
           <div className="grid grid-cols-2 gap-8">
             {/* Maternal Health Section */}
             <div className="space-y-4 p-6 bg-purple-50 rounded-xl">

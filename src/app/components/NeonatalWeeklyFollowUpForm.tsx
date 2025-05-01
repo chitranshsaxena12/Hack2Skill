@@ -72,7 +72,7 @@ export const NeonatalWeeklyFollowUpForm: React.FC<NeonatalWeeklyFollowUpFormProp
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
-        
+
         if (type === 'checkbox') {
             setWeeklyData(prev => ({
                 ...prev,
@@ -83,6 +83,11 @@ export const NeonatalWeeklyFollowUpForm: React.FC<NeonatalWeeklyFollowUpFormProp
             setWeeklyData(prev => ({
                 ...prev,
                 issues
+            }));
+        } else if (type === 'number') {
+            setWeeklyData(prev => ({
+                ...prev,
+                [name]: parseFloat(value) || 0
             }));
         } else {
             setWeeklyData(prev => ({

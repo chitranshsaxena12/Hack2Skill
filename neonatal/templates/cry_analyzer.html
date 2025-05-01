@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Baby Cry Analyzer</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #ECE5DD;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .analyzer-wrapper {
+            width: 90%;
+            max-width: 800px;
+            background: #FFF;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: #075E54;
+            color: #FFF;
+            padding: 12px;
+            text-align: center;
+            font-size: 18px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 8px 8px 0 0;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .record-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #25D366;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        .record-btn:hover {
+            background: #128C7E;
+        }
+        .record-btn.recording {
+            background: #DC3545;
+            animation: pulse 1.5s infinite;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #DCF8C6;
+            display: none;
+        }
+        .result-section {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        .result-section:last-child {
+            border-bottom: none;
+        }
+        .result-section h3 {
+            color: #075E54;
+            margin: 0 0 10px 0;
+        }
+        .timer {
+            font-size: 24px;
+            color: #075E54;
+            margin: 10px 0;
+        }
+        .urgency {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .urgency.low {
+            background: #4CAF50;
+            color: white;
+        }
+        .urgency.moderate {
+            background: #FFA000;
+            color: white;
+        }
+        .urgency.high {
+            background: #DC3545;
+            color: white;
+        }
+        .characteristics-list, .causes-list, .actions-list, .warning-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 10px 0;
+        }
+        .characteristics-list li, .causes-list li, .actions-list li, .warning-list li {
+            padding: 5px 0;
+            position: relative;
+            padding-left: 25px;
+        }
+        .characteristics-list li:before {
+            content: "👁";
+            position: absolute;
+            left: 0;
+        }
+        .causes-list li:before {
+            content: "⚡";
+            position: absolute;
+            left: 0;
+        }
+        .actions-list li:before {
+            content: "✔";
+            position: absolute;
+            left: 0;
+        }
+        .warning-list li:before {
+            content: "⚠";
+            position: absolute;
+            left: 0;
+        }
+        .note {
+            font-style: italic;
+            color: #666;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="analyzer-wrapper">
+        <div class="header">Baby Cry Analyzer</div>
+        <div class="controls">
+            <div class="timer" id="timer">00:00</div>
+            <button id="recordBtn" class="record-btn">🎤</button>
+            <p id="status">Click the microphone to start recording</p>
+        </div>
+        <div id="result" class="result">
+            <!-- Results will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        const recordBtn = document.getElementById('recordBtn');
+        const status = document.getElementById('status');
+        const result = document.getElementById('result');
+        const timer = document.getElementById('timer');
+        let mediaRecorder;
+        let audioChunks = [];
+        let recording = false;
+        let startTime;
+        let timerInterval;
+
+        function updateTimer() {
+            const now = Date.now();
+            const diff = now - startTime;
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const displaySeconds = (seconds % 60).toString().padStart(2, '0');
+            const displayMinutes = minutes.toString().padStart(2, '0');
+            timer.textContent = `${displayMinutes}:${displaySeconds}`;
+        }
+
+        function formatResults(data) {
+            return `
+                <div class="result-section">
+                    <h3>Cry Type Analysis 
+                        <span class="urgency ${data.urgency_level.toLowerCase()}">${data.urgency_level}</span>
+                    </h3>
+                    <p><strong>Detected Type:</strong> ${data.cry_meaning}</p>
+                    <p><strong>Analysis Time:</strong> ${data.analysis_time}</p>
+                </div>
+
+                <div class="result-section">
+                    <h3>Characteristics</h3>
+                    <ul class="characteristics-list">
+                        ${data.characteristics.map(char => `<li>${char}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="result-section">
+                    <h3>Possible Causes</h3>
+                    <ul class="causes-list">
+                        ${data.possible_causes.map(cause => `<li>${cause}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="result-section">
+                    <h3>Recommended Actions</h3>
+                    <ul class="actions-list">
+                        ${data.recommended_actions.map(action => `<li>${action}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="result-section">
+                    <h3>When to Call the Doctor</h3>
+                    <ul class="warning-list">
+                        ${data.when_to_call_doctor.map(warning => `<li>${warning}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <p class="note">${data.note}</p>
+            `;
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const formData = new FormData();
+                    formData.append('audio', audioBlob);
+
+                    try {
+                        const response = await fetch('http://localhost:5001/analyze-cry', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await response.json();
+                        if (data.status === 'success') {
+                            result.style.display = 'block';
+                            result.innerHTML = formatResults(data);
+                        } else {
+                            throw new Error(data.message);
+                        }
+                    } catch (error) {
+                        status.textContent = 'Error analyzing cry. Please try again.';
+                    }
+                };
+
+                mediaRecorder.start();
+                recording = true;
+                recordBtn.classList.add('recording');
+                status.textContent = 'Recording... Click again to stop';
+                startTime = Date.now();
+                timerInterval = setInterval(updateTimer, 1000);
+                audioChunks = [];
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+                status.textContent = 'Error accessing microphone. Please ensure microphone permissions are granted.';
+            }
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            recording = false;
+            recordBtn.classList.remove('recording');
+            status.textContent = 'Analyzing...';
+            clearInterval(timerInterval);
+        }
+
+        recordBtn.addEventListener('click', () => {
+            if (!recording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+    </script>
+</body>
+</html>

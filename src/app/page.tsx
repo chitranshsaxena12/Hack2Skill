@@ -120,7 +120,7 @@ const App: React.FC = () => {
                   Weekly Follow-up
                 </button>
                 <button
-                  onClick={() => setPage("cry-diagnosis")}
+                  onClick={() => window.location.href = 'https://ubiquitous-pancake-4jvw5gr7xx5jhqq4r-5000.app.github.dev/'}
                   className="w-full px-6 py-3 bg-pink-400 text-white rounded-xl shadow-md hover:bg-pink-500"
                   title="Analyze baby's cry"
                 >

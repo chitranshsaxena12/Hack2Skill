@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 interface RiskLevel {
   level: 'low' | 'medium' | 'high';
@@ -16,9 +17,16 @@ interface RiskLevel {
 interface RiskPredictionProps {
   riskLevel: RiskLevel;
   onClose: () => void;
+  setPage: (page: string) => void;
 }
 
-export const RiskPrediction: React.FC<RiskPredictionProps> = ({ riskLevel, onClose }) => {
+export const RiskPrediction: React.FC<RiskPredictionProps> = ({ riskLevel, onClose, setPage }) => {
+  const router = useRouter();
+
+  const handleClose = () => {
+    onClose();
+    setPage("registration-choice");
+  };
   const getRiskColor = (level: string) => {
     switch (level) {
       case 'low':
@@ -86,14 +94,6 @@ export const RiskPrediction: React.FC<RiskPredictionProps> = ({ riskLevel, onClo
                     </div>
                   ))}
                 </div>
-                {/* <h3 className="text-xl font-semibold mb-3">Identified Conditions:</h3>
-                <ul className="list-disc pl-6 space-y-2">
-                  {Object.entries(riskLevel.maternalConditions).map(([condition, details]) => (
-                    <li key={condition} className="text-gray-700">
-                      {condition.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                    </li>
-                  ))}
-                </ul> */}
               </div>
             )}
 
@@ -109,12 +109,28 @@ export const RiskPrediction: React.FC<RiskPredictionProps> = ({ riskLevel, onClo
         </div>
 
         <div className="pt-4 mt-4 border-t border-gray-200">
-          <button
-            onClick={onClose}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Close and Continue
-          </button>
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage("emergency")}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Report Emergency
+              </button>
+              <button
+                onClick={() => setPage("appointment")}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Book Appointment
+              </button>
+            </div>
+            <button
+              onClick={handleClose}
+              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Close and Continue
+            </button>
+          </div>
         </div>
       </div>
     </div>

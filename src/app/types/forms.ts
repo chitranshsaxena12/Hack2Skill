@@ -23,6 +23,30 @@ export interface MaternalFormData {
   weeklyData: WeeklyFormData[];
 }
 
+export interface NeonatalFormData {
+  userId: string;
+  motherName: string;
+  motherAge: number;
+  contact: string;
+  deliveryDate: string;
+  gestationalAge: number;
+  birthWeight: number;
+  birthLength: number;
+  headCircumference: number;
+  apgarScore: number;
+  multipleBirth: boolean;
+  birthComplications: boolean;
+  requiresNICU: boolean;
+  jaundice: boolean;
+  respiratoryIssues: boolean;
+  feedingIssues: boolean;
+  congenitalAnomalies: boolean;
+  maternalDiabetes: boolean;
+  maternalHypertension: boolean;
+  registrationDate: string;
+  weeklyData?: NeonatalWeeklyData[];
+}
+
 export interface WeeklyFormData {
   gestationalAge: number;
   weightChange: number;
@@ -59,7 +83,41 @@ export interface WeeklyFormData {
   weekNumber: number;
 }
 
+export interface NeonatalWeeklyData {
+  weekNumber: number;
+  weightGain: number;
+  heightGain: number;
+  headCircumferenceGain: number;
+  temperature: number;
+  respiratoryRate: number;
+  heartRate: number;
+  feedingPattern: 'poor' | 'fair' | 'good' | 'excellent';
+  feedingFrequency: number;
+  urinationFrequency: number;
+  stoolFrequency: number;
+  sleepPattern: 'poor' | 'fair' | 'good' | 'excellent';
+  sleepHours: number;
+  skinColor: 'normal' | 'pale' | 'jaundiced' | 'cyanotic';
+  skinCondition: 'normal' | 'rash' | 'dry' | 'other';
+  umbilicalCordHealing: boolean;
+  eyeCondition: 'normal' | 'discharge' | 'redness' | 'other';
+  cryPattern: 'normal' | 'high-pitched' | 'weak' | 'excessive';
+  jaundice: boolean;
+  vomiting: boolean;
+  diarrhea: boolean;
+  fever: boolean;
+  cough: boolean;
+  breathing: 'normal' | 'fast' | 'difficult' | 'noisy';
+  activity: 'normal' | 'lethargic' | 'irritable' | 'excessive-crying';
+  immunizationsUpToDate: boolean;
+  vitaminSupplements: boolean;
+  issues: string[];
+  notes: string;
+  userId?: string;
+  submissionDate: string;
+}
+
 export interface Message {
-  text: string;
-  sender: 'user' | 'ai';
+  role: "user" | "assistant";
+  content: string;
 }

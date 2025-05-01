@@ -1,7 +1,7 @@
 {
-  "gestationalAge": 1,
+  "gestationalAge": 2,
   "weightChange": 0,
-  "bloodPressure": "120/50",
+  "bloodPressure": "134/80",
   "sleepHours": 0,
   "stressLevel": 1,
   "supportScore": 1,
@@ -29,7 +29,7 @@
   "skinCondition": false,
   "physicalActivity": 0,
   "slowHealingWounds": false,
-  "submissionDate": "2025-04-30T14:14:40.598Z",
-  "weekNumber": 1,
+  "submissionDate": "2025-05-01T12:17:01.609Z",
+  "weekNumber": 2,
   "userId": "MAT-MA58Z5AS-K4PBX"
 }

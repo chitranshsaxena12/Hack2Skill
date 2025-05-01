@@ -1,7 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import { MaternalRegistrationForm } from './components/MaternalRegistrationForm';
+import { NeonatalRegistrationForm } from './components/NeonatalRegistrationForm';
 import { MaternalWeeklyFollowUpForm } from './components/MaternalWeeklyFollowUpForm';
+import { NeonatalWeeklyFollowUpForm } from './components/NeonatalWeeklyFollowUpForm';
 import { VoiceChat } from './components/VoiceChat';
 
 const App: React.FC = () => {
@@ -14,15 +16,27 @@ const App: React.FC = () => {
   };
 
   const handleMaternalSelection = (selection: string) => {
-    if (selection === "registration") {
+    setPage(selection);
+  };
+
+  const handleNeonatalSelection = (selection: string) => {
+    setPage(selection);
+  };
+
+  const handleRegistrationChoice = (type: string) => {
+    if (type === "maternal") {
       setPage("maternal-registration");
-    } else if (selection === "weekly-followup") {
-      setPage("maternal-weekly");
+    } else if (type === "neonatal") {
+      setPage("neonatal-registration");
     }
   };
 
   const handleRegistrationComplete = () => {
     setPage("maternal-weekly");
+  };
+
+  const handleNeonatalRegistrationComplete = () => {
+    setPage("neonatal-weekly");
   };
 
   return (
@@ -43,18 +57,11 @@ const App: React.FC = () => {
               Voice Assistant Chat
             </button>
             <button
-              onClick={() => handleMainSelection("maternal-menu")}
+              onClick={() => handleMainSelection("registration-choice")}
               className="mmenu animate-fade px-6 py-3 bg-green-500 text-white rounded-xl shadow-md hover:bg-green-600"
-              title="Register or submit weekly updates for maternal health monitoring"
+              title="Register or submit updates for health monitoring"
             >
-              Maternal Risk Section
-            </button>
-            <button
-              onClick={() => alert("Neonatal Risk Section Coming Soon")}
-              className="nmenu animate-fade px-6 py-3 bg-yellow-500 text-white rounded-xl shadow-md hover:bg-yellow-600"
-              title="Coming soon: Monitor and track neonatal health risks"
-            >
-              Neonatal Risk Section
+              Health Monitoring Section
             </button>
           </div>
         </div>
@@ -62,7 +69,7 @@ const App: React.FC = () => {
 
       {page === "voice-chat" && <VoiceChat onBack={() => setPage("main")} />}
 
-      {page === "maternal-menu" && (
+      {page === "registration-choice" && (
         <div className="page-transition space-y-6 text-center relative">
           <button
             onClick={() => setPage("main")}
@@ -70,22 +77,57 @@ const App: React.FC = () => {
           >
             Back
           </button>
-          <h2 className="text-3xl font-semibold">Maternal Risk Section</h2>
-          <div className="space-y-4">
-            <button
-              onClick={() => handleMaternalSelection("registration")}
-              className="mmenu px-6 py-3 bg-purple-500 text-white rounded-xl shadow-md hover:bg-purple-600"
-              title="First-time registration for maternal health monitoring"
-            >
-              Registration (First-Time User)
-            </button>
-            <button
-              onClick={() => handleMaternalSelection("weekly-followup")}
-              className="mmenu px-6 py-3 bg-pink-500 text-white rounded-xl shadow-md hover:bg-pink-600"
-              title="Submit weekly health updates and receive risk assessment"
-            >
-              Weekly Follow-Up
-            </button>
+          <h2 className="text-3xl font-semibold mb-8">Health Monitoring</h2>
+          
+          <div className="grid grid-cols-2 gap-8">
+            {/* Maternal Health Section */}
+            <div className="space-y-4 p-6 bg-purple-50 rounded-xl">
+              <h3 className="text-2xl font-semibold text-purple-800 mb-4">Maternal Health</h3>
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleRegistrationChoice("maternal")}
+                  className="w-full px-6 py-3 bg-purple-500 text-white rounded-xl shadow-md hover:bg-purple-600"
+                  title="Register for maternal health monitoring"
+                >
+                  Maternal Registration
+                </button>
+                <button
+                  onClick={() => setPage("maternal-weekly")}
+                  className="w-full px-6 py-3 bg-purple-400 text-white rounded-xl shadow-md hover:bg-purple-500"
+                  title="Submit weekly health monitoring updates"
+                >
+                  Weekly Follow-up
+                </button>
+              </div>
+            </div>
+
+            {/* Neonatal Health Section */}
+            <div className="space-y-4 p-6 bg-pink-50 rounded-xl">
+              <h3 className="text-2xl font-semibold text-pink-800 mb-4">Neonatal Health</h3>
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleRegistrationChoice("neonatal")}
+                  className="w-full px-6 py-3 bg-pink-500 text-white rounded-xl shadow-md hover:bg-pink-600"
+                  title="Register for neonatal health monitoring"
+                >
+                  Neonatal Registration
+                </button>
+                <button
+                  onClick={() => setPage("neonatal-weekly")}
+                  className="w-full px-6 py-3 bg-pink-400 text-white rounded-xl shadow-md hover:bg-pink-500"
+                  title="Submit weekly neonatal updates"
+                >
+                  Weekly Follow-up
+                </button>
+                <button
+                  onClick={() => setPage("cry-diagnosis")}
+                  className="w-full px-6 py-3 bg-pink-400 text-white rounded-xl shadow-md hover:bg-pink-500"
+                  title="Analyze baby's cry"
+                >
+                  Cry Diagnosis
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -93,7 +135,7 @@ const App: React.FC = () => {
       {page === "maternal-registration" && (
         <div className="page-transition relative w-full">
           <button
-            onClick={() => setPage("maternal-menu")}
+            onClick={() => setPage("registration-choice")}
             className="fixed top-2 right-20 px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-400 z-50"
           >
             Back
@@ -102,15 +144,51 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {page === "maternal-weekly" && (
+      {page === "neonatal-registration" && (
         <div className="page-transition relative w-full">
           <button
-            onClick={() => setPage("maternal-menu")}
+            onClick={() => setPage("registration-choice")}
             className="fixed top-2 right-20 px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-400 z-50"
           >
             Back
           </button>
-          <MaternalWeeklyFollowUpForm onBack={() => setPage("maternal-menu")} />
+          <NeonatalRegistrationForm onComplete={handleNeonatalRegistrationComplete} />
+        </div>
+      )}
+
+      {page === "maternal-weekly" && (
+        <div className="page-transition relative w-full">
+          <button
+            onClick={() => setPage("registration-choice")}
+            className="fixed top-2 right-20 px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-400 z-50"
+          >
+            Back
+          </button>
+          <MaternalWeeklyFollowUpForm onBack={() => setPage("registration-choice")} />
+        </div>
+      )}
+
+      {page === "neonatal-weekly" && (
+        <div className="page-transition relative w-full">
+          <button
+            onClick={() => setPage("registration-choice")}
+            className="fixed top-2 right-20 px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-400 z-50"
+          >
+            Back
+          </button>
+          <NeonatalWeeklyFollowUpForm onBack={() => setPage("registration-choice")} />
+        </div>
+      )}
+
+      {page === "cry-diagnosis" && (
+        <div className="page-transition relative w-full">
+          <button
+            onClick={() => setPage("registration-choice")}
+            className="fixed top-2 right-20 px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-400 z-50"
+          >
+            Back
+          </button>
+          {/* CryDiagnosis component will be added here */}
         </div>
       )}
     </div>

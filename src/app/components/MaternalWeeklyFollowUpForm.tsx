@@ -811,6 +811,7 @@ export const MaternalWeeklyFollowUpForm: React.FC<MaternalWeeklyFollowUpFormProp
                 <RiskPrediction
                     riskLevel={riskPrediction}
                     onClose={() => setShowPrediction(false)}
+                    setPage={onBack}
                 />
             )}
         </div>

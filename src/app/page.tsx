@@ -183,7 +183,7 @@ const App: React.FC = () => {
       {page === "cry-diagnosis" && (
         <div className="page-transition relative w-full">
           <button
-            onClick={() => setPage("registration-choice")}
+            onClick={() => window.location.href = 'https://ubiquitous-pancake-4jvw5gr7xx5jhqq4r-5001.app.github.dev/'}
             className="fixed top-2 right-20 px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-400 z-50"
           >
             Back

@@ -1,0 +1,5 @@
+start cmd /k "cd voice_chat_backend && python app.py"
+start cmd /k "cd risk_production && python predict_maternal_risk.py"
+start cmd /k "cd risk_production && python predict_neonatal_risk.py"
+start cmd /k "cd neonatal && python cry_analyzer_service.py"
+start cmd /k "npm run dev"

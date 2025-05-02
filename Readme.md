@@ -42,7 +42,7 @@ python predict_neonatal_risk.py
 ```bash
 cd neonatal
 pip install -r requirements.txt
-python cry_analyzer_service.py
+python app.py
 ```
 
 ---

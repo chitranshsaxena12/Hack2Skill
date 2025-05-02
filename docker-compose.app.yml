@@ -1,7 +1,44 @@
-version: "3"
+# version: "3"
+# services:
+#   openai-chatbot-app:
+#     container_name: openai-chatbot-app
+#     build:
+#       context: "."
+#       dockerfile: ./docker/Dockerfile
+
+
+
+version: '3.8'
+
 services:
-  openai-chatbot-app:
-    container_name: openai-chatbot-app
+  voice_chat_backend:
     build:
-      context: "."
-      dockerfile: ./docker/Dockerfile
+      context: ./voice_chat_backend
+    ports:
+      - "5000:5000"
+    command: python app.py
+
+  risk_production:
+    build:
+      context: ./risk_production
+    ports:
+      - "5001:5001"
+    command: >
+      sh -c "python predict_maternal_risk.py & python predict_neonatal_risk.py"
+
+  neonatal:
+    build:
+      context: ./neonatal
+    ports:
+      - "5002:5002"
+    command: python cry_analyzer_service.py
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    command: npm run dev
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
